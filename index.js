@@ -1,5 +1,4 @@
 var Peer = require('simple-peer')
-var wrtc = require('wrtc')
 var Emitter = require('component-emitter')
 var parser = require('socket.io-p2p-parser')
 var toArray = require('to-array')
@@ -41,13 +40,15 @@ function Socketiop2p (socket, opts, cb) {
   socket.on('numClients', function (numClients) {
     self.peerId = socket.io.engine.id
     self.numConnectedClients = numClients
-    generateOffers(function (offers) {
-      var offerObj = {
-        offers: offers,
-        fromPeerId: self.peerId
-      }
-      socket.emit('offers', offerObj)
-    })
+    if (rtcSupport.supportDataChannel || self.peerOpts.wrtc) {
+      generateOffers(function (offers) {
+        var offerObj = {
+          offers: offers,
+          fromPeerId: self.peerId
+        }
+        socket.emit('offers', offerObj)
+      })
+    }
 
     function generateOffers (cb) {
       var offers = []
@@ -56,7 +57,7 @@ function Socketiop2p (socket, opts, cb) {
       }
       function generateOffer () {
         var offerId = hat(160)
-        var peerOpts = extend(self.peerOpts, {initiator: true, wrtc: wrtc})
+        var peerOpts = extend(self.peerOpts, {initiator: true})
         var peer = self._peers[offerId] = new Peer(peerOpts)
         peer.setMaxListeners(50)
         self.setupPeerEvents(peer)
@@ -84,7 +85,7 @@ function Socketiop2p (socket, opts, cb) {
   })
 
   socket.on('offer', function (data) {
-    var peerOpts = extend(self.peerOpts, {initiator: false, wrtc: wrtc})
+    var peerOpts = extend(self.peerOpts, {initiator: false})
     var peer = self._peers[data.fromPeerId] = new Peer(peerOpts)
     self.numConnectedClients++
     peer.setMaxListeners(50)

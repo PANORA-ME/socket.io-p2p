@@ -30,8 +30,7 @@
     "simple-peer": "~5.11.8",
     "socket.io-p2p-parser": "tomcartwrightuk/socket.io-p2p-parser",
     "to-array": "^0.1.4",
-    "webrtcsupport": "^2.1.2",
-    "wrtc": "^0.1.6"
+    "webrtcsupport": "^2.1.2"
   },
   "devDependencies": {
     "concat-stream": "^1.5.1",
